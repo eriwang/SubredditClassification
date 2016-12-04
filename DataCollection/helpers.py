@@ -16,5 +16,5 @@ def generate_downs(submission):
 
 def generate_subs(xmlSub, comment, depth=1):
     for reply in comment.replies:
-        sub = ElementTree.SubElement(xmlSub, 'Reply', {'id':reply.id, 'upvotes':str(reply.ups),'body':reply.body, 'depth':depth})
+        sub = ElementTree.SubElement(xmlSub, 'Reply', {'id':reply.id, 'upvotes':str(reply.ups),'body':reply.body, 'depth':str(depth)})
         generate_subs(sub, reply, depth+1)

@@ -23,14 +23,13 @@ for subredditTitle in SUBREDDITS:
     print 'Gathering data for:', '/r/' + subredditTitle 
 
     subreddit = reddit.subreddit(subredditTitle)
-    numSubmissions = 0
 
     # Create basic tree
     root = Element('Subreddit', {'title':subredditTitle, 'display_name':subreddit.title})    
     submissions = {
         Element('Submission', {'id':submission.id, 'title':submission.title, 'upvotes':str(submission.ups), 
                                'downvotes':str(generate_downs(submission)), 'self_body':submission.selftext}
-                ):submission for submission in subreddit.hot(limit=10)
+                ):submission for submission in subreddit.hot(limit=None)
         }
     root.extend(submissions.keys())
 
@@ -44,21 +43,13 @@ for subredditTitle in SUBREDDITS:
             sub = SubElement(xmlSub, 'Comment', {'id':comment.id, 'upvotes':str(comment.ups), 'body':comment.body})
             generate_subs(sub, comment)
 
-    print prettify(root)
-    
+    subredditWriter.write(prettify(root).encode('utf-8'))
+    subredditWriter.close()
 
-    for submission in subreddit.hot(limit=None):
-        if submission.is_self or submission.is_self == False:
-            submissions.append(Element('Submission'))
-            submissions[-1].set('title', submission.title)
-            
-
-            numSubmissions += 1
-
-
-    collectionStats.write('Found ' + str(numSubmissions) + ' submissions in /r/' + subredditTitle +  '\n')
-    totalSubmissions += numSubmissions
-    print 'Found', numSubmissions, 'submissions in', subreddit.title, '\n'
+    collectionStats.write('Found ' + str(len(submissions)) + ' submissions in /r/' + subredditTitle +  '\n')
+    totalSubmissions += len(submissions)
+    print 'Found', len(submissions), 'submissions in', subreddit.title, '\n'
 
 collectionStats.write('\n' + 'Total Submissions collected: ' + str(totalSubmissions) + '\n')
 collectionStats.close()
+
