@@ -13,7 +13,7 @@ reddit = praw.Reddit(user_agent='Subreddit classification - data collection (by 
                      client_id='2eGzRj81THEygg', client_secret='uCtxG3tWHl4m9y5kiaGVZIi22ZI')
 
 
-collectionStats = open('Collection Statistics.out.', 'w')
+collectionStats = open('Collection Statistics.out', 'w')
 totalSubmissions = 0
 
 # Grabbing all available ~1000 submissions on each subreddit
