@@ -2,3 +2,8 @@
 *DS_Store
 *.pyc
 *.xml
+<<<<<<< HEAD
+*.out
+*.zip
+=======
+>>>>>>> master
