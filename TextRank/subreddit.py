@@ -1,7 +1,10 @@
+from nltk.corpus import stopwords as stopwords
 from nltk.tokenize import word_tokenize
 
 import sys
 import xml.etree.ElementTree as ET
+
+stopwordSet = set(stopwords.words("english"))
 
 class Subreddit:
 	def __init__(self, xmlFilename):
@@ -29,7 +32,7 @@ class Subreddit:
 
 class Submission:
 	def __init__(self, submissionElement, subreddit):
-		self.body = submissionElement.get("self_body")
+		self.body = submissionElement.get("title") + "\n" + submissionElement.get("self_body")
 		self.bodySet = bodyToTokens(self.body)
 		self.netUpvotes = int(submissionElement.get("upvotes")) - int(submissionElement.get("downvotes"))
 		self.replies = []
@@ -55,4 +58,4 @@ class Reply:
 
 def bodyToTokens(body):
 	tokens = word_tokenize(body)
-	return set([t.lower() for t in tokens])
+	return set([t.lower() for t in tokens if t.lower() not in stopwordSet])
