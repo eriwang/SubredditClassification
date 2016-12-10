@@ -1,6 +1,7 @@
 from nltk.corpus import stopwords as stopwords
 from nltk.tokenize import word_tokenize
 
+import string
 import sys
 import xml.etree.ElementTree as ET
 
@@ -57,5 +58,6 @@ class Reply:
 			self.replies.append(Reply(reply, subreddit))
 
 def bodyToTokens(body):
-	tokens = word_tokenize(body)
+	filteredBody = body.translate(None, string.punctuation)
+	tokens = word_tokenize(filteredBody)
 	return set([t.lower() for t in tokens if t.lower() not in stopwordSet])

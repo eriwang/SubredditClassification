@@ -3,7 +3,7 @@ class Graph:
 		print "Putting subreddit into graph form..."
 
 		self.vertices = []
-		self.verticesToEdgeWeight = {}
+		self.verticesToVertexToEdgeWeight = {}
 
 		# initialize vertices
 		initScore = 1 / float(len(subreddit.idToItem))
@@ -27,25 +27,38 @@ class Graph:
 
 		print "Graph created!"
 
-	def _getVertexKey(self, v1, v2):
-		if v1.id < v2.id:
-			return v1.id + v2.id
-		else:
-			return v2.id + v1.id
-
 	def _addEdge(self, v1, v2, weight):
-		self.verticesToEdgeWeight[self._getVertexKey(v1, v2)] = weight
+		if v1 not in self.verticesToVertexToEdgeWeight:
+			self.verticesToVertexToEdgeWeight[v1] = {}
+		if v2 not in self.verticesToVertexToEdgeWeight:
+			self.verticesToVertexToEdgeWeight[v2] = {}
 
-	def _getEdge(self, v1, v2):
-		key = self._getVertexKey(v1, v2)
-		if key in self.verticesToEdgeWeight:
-			return self.verticesToEdgeWeight[key]
-		else:
-			return 0
+		self.verticesToVertexToEdgeWeight[v1][v2] = weight
+		self.verticesToVertexToEdgeWeight[v2][v1] = weight
+
+	def textRankIteration(self, d):
+		for vertex, vertexToEdgeWeight in self.verticesToVertexToEdgeWeight.iteritems():
+			sumIncomingTextRanks = 0
+			for otherVertex, edgeWeight in vertexToEdgeWeight.iteritems():
+				sumOutgoingWeights = sum(self.verticesToVertexToEdgeWeight[otherVertex].values())
+				sumIncomingTextRanks += edgeWeight * otherVertex.lastScore / sumOutgoingWeights
+			vertex.score = sumIncomingTextRanks
+
+		self._updateVertexScores()
+
+	def _updateVertexScores(self):
+		for vertex in self.vertices:
+			vertex.lastScore = vertex.score
+
+	def getTopNVertices(self, n):
+		self.vertices.sort(key = lambda vertex: vertex.score)
+		return self.vertices[0:n]
+
 
 class Vertex:
 	def __init__(self, id, score, vertexWeight):
 		self.id = id
+		self.lastScore = score
 		self.score = score
 		self.vertexWeight = vertexWeight
 
