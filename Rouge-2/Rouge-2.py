@@ -1,3 +1,6 @@
+# REQUIRES PrettyTable to be installed
+# pip install PrettyTable
+
 from prettytable import PrettyTable
 import xml.etree.ElementTree as ET
 import numpy as np
