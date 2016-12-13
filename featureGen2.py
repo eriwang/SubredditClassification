@@ -4,13 +4,13 @@ import datetime
 
 # titleVocab = sorted(set(titleVocab))
 # vocab = sorted(set(vocab))
-def addVocabToVectors(outputName):
-	vocabFile = open("Data/vocab" + outputName, "r")
-	titleVocabFile = open("Data/titleVocab" + outputName, "r")
-	featureVectorFile = open("Data/featureVectors1" + outputName, "r")
-	listOfWordsFile = open("Data/listOfWords" + outputName, "r")
-	listOfTitlesFile = open("Data/listOfTitles" + outputName, "r")
-	featureVectorFile2 = open("Data/featureVectors2" + outputName, "w")
+def addVocabToVectors(outputName, oneHotAsBool=False):
+	vocabFile = open("Data/" + outputName + "/vocab" , "r")
+	titleVocabFile = open("Data/" + outputName + "/titleVocab" , "r")
+	featureVectorFile = open("Data/" + outputName + "/featureVectors1" , "r")
+	listOfWordsFile = open("Data/" + outputName + "/listOfWords" , "r")
+	listOfTitlesFile = open("Data/" + outputName + "/listOfTitles" , "r")
+	
 	titleVocab = titleVocabFile.readline().split()
 	vocab = vocabFile.readline().split()
 	featureVectors = [line.split() for line in featureVectorFile]
@@ -38,16 +38,22 @@ def addVocabToVectors(outputName):
 				i = vocabDict[word]
 				if i >= 0:
 					# print i
-					vocabVector[i] += 1
-			except ValueError:
+					if oneHotAsBool:
+						vocabVector[i] = 1
+					else:
+						vocabVector[i] += 1
+			except KeyError:
 				pass
 		for word in title:
 			try:
 				j = titleDict[word]
 				if j >= 0:
 					# print j
-					titleVector[j] += 1
-			except ValueError:
+					if oneHotAsBool:
+						titleVector[j] = 1
+					else:
+						titleVector[j] += 1
+			except KeyError:
 				pass
 		featureVectors[index] = featureVector + titleVector + vocabVector
 	print "Feature generation complete"

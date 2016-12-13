@@ -13,6 +13,7 @@ from sklearn.cross_validation import StratifiedKFold
 import sklearn
 import datetime
 from collections import Counter
+import os
 
 
 
@@ -36,11 +37,11 @@ titleVocab = []
 
 ### Overall features
 # One hot encoding for words ( % of words that are that word)
-# Frequency of question marks (% of tokens that are ?) [8]
-# Frequency of punctuation (% of tokens that are punct) (decreased accuracy)
+# Frequency of question marks [9] (% of tokens that are ?) (decreased accuracy)
+# Frequency of punctuation [10] (% of tokens that are punct) (decreased accuracy)
 # Average length of word (?) (redundant - length of post + # words in post)
-# Capitalized after . or ? (?)
-# Number of sentences
+# Capitalized after . or ? [11] (?)
+# Number of sentences [8]
 
 ### Post features
 # Words in title [end + 1]
@@ -68,26 +69,49 @@ titleVocab = []
 
 #Note: parse so that ....... is together which means .....? will also probalby be together
 # Means instead of doing ==, gonna have to do find/in
+# Parse string so that we keep numbers together and keep punctuation as tokens
+# Includes .?
+# regexStr = "[0-9]+[0-9,]+[.][0-9]+|[0-9]+[.][0-9]+|[0-9]+[0-9,]+[0-9]|[\w]+['][\w]+|[\w]+|[.?]+"
+# Doesn't include .?
+regexStr = "[0-9]+[0-9,]+[.][0-9]+|[0-9]+[.][0-9]+|[0-9]+[0-9,]+[0-9]|[\w]+['][\w]+|[\w]+"
 
-# Depth 0 is the submission, 1 is first level comment
-def generateFeatures(post, featureVector, titleList, wordList, totalNumbers=0, capsLock=0, totalWords=0):
+def generateFeatures(post, featureVector, titleList, wordList, totalNumbers=0, capsLock=0, totalWords=0, numSentences=0, qMarkCount=0, numPunct=0):
+	previousWasPunct = False
+	numCaps = 0
+	numPossibleCaps = 0
 	# bodyList = body.split() # TODO make this regex from p4
 	if post.tag == "Submission":
 		body = post.attrib["self_body"]
-		bodyList =  re.findall(r"[0-9]+[0-9,]+[.][0-9]+|[0-9]+[.][0-9]+|[0-9]+[0-9,]+[0-9]|[\w]+['][\w]+|[\w]+|[?]+", body)
+		bodyList =  re.findall(r"" + regexStr, body)
 		
 		title = post.attrib["title"]
-		titleSplit =  re.findall(r"[0-9]+[0-9,]+[.][0-9]+|[0-9]+[.][0-9]+|[0-9]+[0-9,]+[0-9]|[\w]+['][\w]+|[\w]+|[?]+", title)
-		# titleSplit = title.split() # TODO: regex?
+		titleSplit =  re.findall(r"" + regexStr, title)
 		featureVector[0] = len(titleSplit)
 		featureVector[1] = len(title)
 		featureVector[2] = len(bodyList)
 		featureVector[3] = len(body)
 
 		for word in titleSplit:
-			# if word.find("?") >= 0:
-			# 	qMarkCount += 1
-			# 	continue
+			idx = word.find("?") 
+			if idx >= 0 or word.find(".") >= 0:
+				if idx >= 0:
+					qMarkCount += 1
+				numSentences += 1
+				previousWasPunct = True
+				# Uncomment if puncutation is removed from tokens
+				# continue
+			else:
+				if previousWasPunct == True:
+					numPossibleCaps += 1
+					if word[0] >= 'A' and word[0] <= 'Z':
+						numCaps += 1
+
+					previousWasPunct = False
+			# if not re.search('[\w]', word):
+			# 	numPunct += 1
+			# 	continue;
+			
+
 			lowerWord = word.lower()
 			if not lowerWord in stopwords:
 				# wordList.append(lowerWord)
@@ -104,27 +128,43 @@ def generateFeatures(post, featureVector, titleList, wordList, totalNumbers=0, c
 					capsLock += 1
 				pass
 		# Check for link
-		if body.lower().find("http") >= 0 or body.lower().find("www.") >= 0 or body.lower().find(".com") >= 0:
-			featureVector[6] = 1
+		# if body.lower().find("http") >= 0 or body.lower().find("www.") >= 0 or body.lower().find(".com") >= 0:
+		# 	featureVector[6] = 1
 
 		# Count newlines
 		numNewlines = body.count('\n')
-		featureVector[4] = numNewlines
+		# featureVector[4] = numNewlines
 
-	else:
-		body = post.attrib["body"]
-		bodyList = re.findall(r"[0-9]+[0-9,]+[.][0-9]+|[0-9]+[.][0-9]+|[0-9]+[0-9,]+[0-9]|[\w]+['][\w]+|[\w]+|[?]", body)
+	# else:
+	# 	body = post.attrib["body"]
+	# 	bodyList = re.findall(r"" + regexStr, body)
 	
 		# print "other"
-	# Count number of numbers
+		# Count number of numbers
 	for word in bodyList:
-		# if word.find("?") >= 0:
-		# 	qMarkCount += 1
+		idx = word.find("?")
+		if idx >= 0 or word.find(".") >= 0:
+			if idx >= 0:
+				qMarkCount += 1
+			numSentences += 1
+			previousWasPunct = True
+			# Uncomment if puncutation is removed from tokens
+			# continue
+		else:
+			if previousWasPunct == True:
+				numPossibleCaps += 1
+				if word[0] >= 'A' and word[0] <= 'Z':
+					numCaps += 1
+				previousWasPunct = False
+
+		# if not re.search('[\w]', word):
+		# 	numPunct += 1
 		# 	continue
+
 		lowerWord = word.lower()
 		if not lowerWord in stopwords:
-			if post.tag == "Submission":
-				wordList.append(lowerWord)
+			# if post.tag == "Submission":
+			wordList.append(lowerWord)
 			vocab.append(lowerWord)
 			# srVocab.append(lowerWord)
 		totalWords += 1
@@ -137,9 +177,9 @@ def generateFeatures(post, featureVector, titleList, wordList, totalNumbers=0, c
 				capsLock += 1
 			pass
 
-	for child in post:
-		# Double chekc this
-		totalNumbers, capsLock, totalWords = generateFeatures(child, featureVector, titleList, wordList, totalNumbers, capsLock, totalWords)
+	# for child in post:
+	# 	# Double chekc this
+	# 	totalNumbers, capsLock, totalWords, numSentences, qMarkCount, numPunct = generateFeatures(child, featureVector, titleList, wordList, totalNumbers, capsLock, totalWords, numSentences, qMarkCount, numPunct)
 
 	if post.tag == "Submission":
 		if totalWords != 0:
@@ -147,30 +187,40 @@ def generateFeatures(post, featureVector, titleList, wordList, totalNumbers=0, c
 			# print totalNumbers
 			# print totalWords
 			portionCapsLock = float(capsLock) / totalWords
-			# qMarkPercent = float(qMarkCount) / (qMarkCount + totalWords)
+			qMarkPercent = float(qMarkCount) / (qMarkCount + totalWords)
+			percentPunct = float(numPunct) / totalWords
 			# print capsLock
 		else:
 			portionNumbers = 0
 			portionCapsLock = 0
-			# qMarkPercent = 0
-		featureVector[5] = portionNumbers
-		featureVector[7] = portionCapsLock
-		# featureVector[8] = qMarkPercent
+			qMarkPercent = 0
+			percentPunct = 0
+		if numPossibleCaps != 0:
+			percentCap = float(numCaps) / numPossibleCaps
+		else:
+			percentCap = 0
+		featureVector[4] = portionNumbers
+		# featureVector[7] = portionCapsLock
+		# featureVector[8] = numSentences
+		# featureVector[9] = qMarkPercent
+		# featureVector[10] = percentPunct
+		# featureVector[11] = percentCap
 
 
-	return totalNumbers, capsLock, totalWords
+	return totalNumbers, capsLock, totalWords, numSentences, qMarkCount, numPunct
 	# for child in post:
 # Make a vector containing all words in each post
 # have it match up to the corresponding feature vector
 # append more slots for vocab after all are generated
 # fill in vocab slots
-
-vocabFile = open("Data/vocab" + outputName, "w")
-titleVocabFile = open("Data/titleVocab" + outputName, "w")
-featureVectorFile = open("Data/featureVectors1" + outputName, "w")
-nFoldFile = open("Data/nFold" + outputName, "w")
-listOfWordsFile = open("Data/listOfWords" + outputName, "w")
-listOfTitlesFile = open("Data/listOfTitles" + outputName, "w")
+if not os.path.exists("Data/" + outputName):
+	os.makedirs("Data/" + outputName)
+vocabFile = open("Data/" + outputName + "/vocab", "w")
+titleVocabFile = open("Data/" + outputName + "/titleVocab" , "w")
+featureVectorFile = open("Data/" + outputName + "/featureVectors1" , "w")
+nFoldFile = open("Data/" + outputName + "/nFold" , "w")
+listOfWordsFile = open("Data/" + outputName + "/listOfWords" , "w")
+listOfTitlesFile = open("Data/" + outputName + "/listOfTitles" , "w")
 
 print "Starting feature generation part 1"
 print datetime.datetime.now().time()
@@ -191,7 +241,7 @@ for file in fileList:
 	for child in root:
 		# subredditVocab.append([])
 		# srVocab = subredditVocab[-1]
-		featureVector = [0]*8 # TODO: make right size
+		featureVector = [0]*5 # TODO: make right size
 		listOfWords.append([])
 		wordList = listOfWords[-1]
 		listOfTitles.append([])
