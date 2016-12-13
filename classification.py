@@ -26,11 +26,6 @@ if len(sys.argv) > 1:
 		if len(sys.argv) > 3:
 			saveTree = sys.argv[3]
 
-if oneHotAsBool:
-	out = open("Results/oneHotAsBool_" + outputName, "w")
-	
-else:
-	out = open("Results/" + outputName, "w")
 
 featureVectors = addVocabToVectors(outputName, oneHotAsBool)
 
@@ -41,6 +36,7 @@ nFold = nFoldFile.readline().split()
 if saveTree != "":
 	clf = DecisionTreeClassifier()
 	clf.fit(featureVectors, nFold)
+	export_graphviz(clf)
 	s = pickle.dump(clf, open(saveTree, "wb"))
 	vocabFile = open("Data/forPrediction/vocab" , "r")
 	titleVocabFile = open("Data/forPrediction/titleVocab" , "r")
@@ -103,7 +99,7 @@ if saveTree != "":
 		featureVector[3] = portionNumbers
 		featureVector = featureVector + titleVector + vocabVector
 		result = clf.predict([featureVector])
-		print "Predicted subreddit: " + result[0]
+		print "\nPredicted subreddit: " + result[0] + "\n"
 	# feature_names = ["One hot encoding"]*(2*len(featureVectors)+1)
 	# feature_names[0] = "Number of words in title"
 	# feature_names[1] = "Length of title"
@@ -113,6 +109,12 @@ if saveTree != "":
 	# 	clf.export_graphviz(clf, dotfile, feature_names)
 	# export_graphviz(clf, out_file='DecisionTree.dot', feature_names=feature_names)
 else:
+	
+	if oneHotAsBool:
+		out = open("Results/oneHotAsBool_" + outputName, "w")
+		
+	else:
+		out = open("Results/" + outputName, "w")
 	print len(featureVectors)
 	print len(nFold)
 	average = 0
