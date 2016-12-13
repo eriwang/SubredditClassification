@@ -6,12 +6,16 @@ import sys
 import xml.etree.ElementTree as ET
 
 stopwordSet = set(stopwords.words("english"))
+punctuationSet = set(list(string.punctuation))
 
 class Subreddit:
 	def __init__(self, xmlFilename):
 		print "Beginning to parse {}...".format(xmlFilename)
 		tree = ET.parse(xmlFilename)
 		subredditRoot = tree.getroot()
+
+		self.maxNetUpvotes = 1
+		self.minNetUpvotes = 1
 
 		self.displayName = subredditRoot.get("display_name")
 		self.title = subredditRoot.get("title")
@@ -30,6 +34,10 @@ class Subreddit:
 			sys.exit(1)
 
 		self.idToItem[id] = item
+		if item.netUpvotes > self.maxNetUpvotes:
+			self.maxNetUpvotes = item.netUpvotes
+		elif item.netUpvotes < self.minNetUpvotes:
+			self.minNetUpvotes = item.netUpvotes
 
 class Submission:
 	def __init__(self, submissionElement, subreddit):
@@ -48,7 +56,7 @@ class Reply:
 	def __init__(self, replyElement, subreddit):
 		self.body = replyElement.get("body")
 		self.bodySet = bodyToTokens(self.body)
-		self.netUpvotes = replyElement.get("upvotes")
+		self.netUpvotes = int(replyElement.get("upvotes"))
 		self.replies = []
 		self.id = replyElement.get("id")
 
@@ -58,6 +66,5 @@ class Reply:
 			self.replies.append(Reply(reply, subreddit))
 
 def bodyToTokens(body):
-	filteredBody = body.translate(None, string.punctuation)
-	tokens = word_tokenize(filteredBody)
-	return set([t.lower() for t in tokens if t.lower() not in stopwordSet])
+	tokens = word_tokenize(body)
+	return set([t.lower() for t in tokens if t.lower() not in stopwordSet and t not in punctuationSet])

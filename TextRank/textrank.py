@@ -8,7 +8,7 @@ def runTextRankOnGraph(graph, iterations, d):
 		graph.textRankIteration(d)
 
 def main():
-	subreddit = Subreddit("Data/test_small.xml")
+	subreddit = Subreddit("Data/uofm.xml")
 	graph = Graph(subreddit)
 	runTextRankOnGraph(graph, 1, 0.85)
 

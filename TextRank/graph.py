@@ -1,3 +1,5 @@
+from math import log
+
 class Graph:
 	def __init__(self, subreddit):
 		print "Putting subreddit into graph form..."
@@ -5,10 +7,13 @@ class Graph:
 		self.vertices = []
 		self.verticesToVertexToEdgeWeight = {}
 
+		self.maxNetUpvotes = subreddit.maxNetUpvotes
+		self.minNetUpvotes = subreddit.minNetUpvotes
+
 		# initialize vertices
 		initScore = 1 / float(len(subreddit.idToItem))
 		for id, item in subreddit.idToItem.iteritems():
-			self.vertices.append(Vertex(id, initScore, getVertexWeight(item)))
+			self.vertices.append(Vertex(id, initScore, self.getVertexWeight(item)))
 
 		# calculate edge weights based on jaccard
 		for i in range(len(self.vertices)):
@@ -21,9 +26,9 @@ class Graph:
 			for j in range(i + 1, len(self.vertices)):
 				vertB = self.vertices[j]
 				itemB = subreddit.idToItem[vertB.id]
-				similarity = jaccardSimilarity(itemA.bodySet, itemB.bodySet)
-				if similarity > 0:
-					self._addEdge(vertA, vertB, similarity)
+				sim = similarity(itemA.bodySet, itemB.bodySet)
+				if sim > 0:
+					self._addEdge(vertA, vertB, sim)
 
 		print "Graph created!"
 
@@ -36,13 +41,21 @@ class Graph:
 		self.verticesToVertexToEdgeWeight[v1][v2] = weight
 		self.verticesToVertexToEdgeWeight[v2][v1] = weight
 
+	def getVertexWeight(self, item):
+		return float(item.netUpvotes - self.minNetUpvotes + 1) / float(self.maxNetUpvotes)
+
 	def textRankIteration(self, d):
+		i = 0
 		for vertex, vertexToEdgeWeight in self.verticesToVertexToEdgeWeight.iteritems():
+			if i % 100 == 0:
+				print "Calculating TextRank for vertex {} out of {}...".format(i, len(self.vertices))
+
 			sumIncomingTextRanks = 0
 			for otherVertex, edgeWeight in vertexToEdgeWeight.iteritems():
 				sumOutgoingWeights = sum(self.verticesToVertexToEdgeWeight[otherVertex].values())
 				sumIncomingTextRanks += edgeWeight * otherVertex.lastScore / sumOutgoingWeights
-			vertex.score = sumIncomingTextRanks
+			vertex.score = sumIncomingTextRanks * log(vertex.vertexWeight)
+			i += 1
 
 		self._updateVertexScores()
 
@@ -62,15 +75,14 @@ class Vertex:
 		self.score = score
 		self.vertexWeight = vertexWeight
 
-# TODO: use features to create a "weight" for the vertex
-def getVertexWeight(item):
-	return 0
+def similarity(wordSet1, wordSet2):
+	# This is to avoid a division by 0 error
+	if len(wordSet1) <= 1 or len(wordSet2) <= 1:
+		return 0
 
-def jaccardSimilarity(wordSet1, wordSet2):
 	numSameWords = len(wordSet1.intersection(wordSet2))
 
 	if numSameWords <= 0.05 * max(len(wordSet1), len(wordSet2)):
 		return 0
 
-	numWordsTotal = len(wordSet1.union(wordSet2))
-	return float(numSameWords) / (float(numWordsTotal) if numWordsTotal > 0 else 1)
+	return float(numSameWords) / (log(len(wordSet1)) + log(len(wordSet2)))
