@@ -103,7 +103,7 @@ if saveTree != "":
 		featureVector[3] = portionNumbers
 		featureVector = featureVector + titleVector + vocabVector
 		result = clf.predict([featureVector])
-		print result[0]
+		print "Predicted subreddit: " + result[0]
 	# feature_names = ["One hot encoding"]*(2*len(featureVectors)+1)
 	# feature_names[0] = "Number of words in title"
 	# feature_names[1] = "Length of title"
