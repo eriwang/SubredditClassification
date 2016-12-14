@@ -3,7 +3,7 @@ from helpers import *
 import praw
 
 
-SUBREDDITS = ['history','uofm','engineering','cscareerquestions','puns']
+SUBREDDITS = ['history','uofm','engineering','cscareerquestions','puns', 'PoliticalDiscussion', 'LifeProTips', 'legaladvice', 'askphilosophy']
 
 
 # Reddit Credentials
