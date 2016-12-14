@@ -1,9 +1,7 @@
 
 import sys
-import pythonrouge
 import xml.etree.ElementTree as ET
 from summarizer import summarizer
-from pythonrouge import pythonrouge
 
 num_top = int(sys.argv[1])
 
@@ -18,14 +16,4 @@ for sub in subs:
 
     summary = s.summarize(root, num_top)
 
-    # get gold standard
-    f = open('annotations/' + sub + '.txt')
-
-    peer = summary
-    model = f.read()
-
-    print("summary:\n", peer)
-    peer = peer.lower()
-    model = model.lower()
-    score = pythonrouge.pythonrouge(model, peer)
-    print("R2 score:", score['ROUGE-2'], "R1 score:", score['ROUGE-1'])
+    print("summary:\n", summary)
