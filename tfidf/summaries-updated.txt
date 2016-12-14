@@ -1,0 +1,10 @@
+history
+A place for discussing historical events. Interesting events and eras throughout history are common.
+ufom
+A place for discussion about the University of Michigan at Ann Arbor, Michigan. Alumni as well as students can ask questions regarding academics, student life, and career planning.
+engineering
+A place for discussing all things in the field of engineering. Experienced engineers can offer career advice. Interesting articles and Engineering news can be discussed and analyzed.
+cscareerquestions
+A place for discussing career decisions. Experienced software engineers can offer advice to young professionals starting their careers.
+puns
+A place for jokes containing and regarding puns. Most jokes revolve around clever wordplay.
