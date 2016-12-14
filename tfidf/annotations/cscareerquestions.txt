@@ -1,0 +1,6 @@
+cscareerquestions
+This is a subreddit for people who have questions about computer science. People ask others who have more expertise for their advice based on their experiences. This community is open to anyone interested in computer science, not just those studying it.
+A place for discussing career decisions. Experienced software engineers can offer advice to young professionals starting their careers.
+A place for users to ask questions and start discussions about anything to do with Computer Science and Software Development jobs. This ranges from information on specific jobs at specific companies, to general questions on Computer Science and Software Development skills.
+CSCareerQuestions is a subreddit where all members of the CS community discuss things relevant to their career. This include classes to take in school, companies they are interested in working for, the interview process, and different jobs in many quantitive fields such as software development, science, web development, and management.
+WELCOME one and all, to /r/cscareerquestions! Here we discuss careers in Computer Science, Computer Engineering, Software Engineering, and related fields. Please keep the conversation professional, adhere to the reddiquette, and remember to READ OUR RULES. If you have a common question, please read this post first.
