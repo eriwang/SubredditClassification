@@ -18,4 +18,6 @@ algorithm.annotations.xml
 Respectively. Each of these annotation files must also include a xml tree corresponding to each subreddit in the above list. 
 
 The following Python library must be installed 
-PrettyTabl
+``` Bash
+PrettyTable
+```
