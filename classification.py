@@ -18,26 +18,26 @@ import pickle
 
 outputName = ""
 oneHotAsBool = False
-saveTree = ""
+demo = False
 if len(sys.argv) > 1:
 	outputName = sys.argv[1]
 	if len(sys.argv) > 2:
 		oneHotAsBool = sys.argv[2]
 		if len(sys.argv) > 3:
-			saveTree = sys.argv[3]
+			demo = sys.argv[3]
 
-
+# Finish making feature vectors
 featureVectors = addVocabToVectors(outputName, oneHotAsBool)
 
 nFoldFile = open("Data/" + outputName + "/nFold", "r")
 nFold = nFoldFile.readline().split()
 
 
-if saveTree != "":
+if demo == True:
 	clf = DecisionTreeClassifier()
 	clf.fit(featureVectors, nFold)
 	export_graphviz(clf)
-	s = pickle.dump(clf, open(saveTree, "wb"))
+	# s = pickle.dump(clf, open(saveTree, "wb"))
 	vocabFile = open("Data/forPrediction/vocab" , "r")
 	titleVocabFile = open("Data/forPrediction/titleVocab" , "r")
 	titleVocab = titleVocabFile.readline().split()
@@ -100,14 +100,6 @@ if saveTree != "":
 		featureVector = featureVector + titleVector + vocabVector
 		result = clf.predict([featureVector])
 		print "\nPredicted subreddit: " + result[0] + "\n"
-	# feature_names = ["One hot encoding"]*(2*len(featureVectors)+1)
-	# feature_names[0] = "Number of words in title"
-	# feature_names[1] = "Length of title"
-	# feature_names[2] = "Number of words in post"
-	# feature_names[3] = "Percent of words that are numbers"
-	# with open('tree.dot', 'w') as dotfile:
-	# 	clf.export_graphviz(clf, dotfile, feature_names)
-	# export_graphviz(clf, out_file='DecisionTree.dot', feature_names=feature_names)
 else:
 	
 	if oneHotAsBool:
@@ -119,6 +111,7 @@ else:
 	print len(nFold)
 	average = 0
 	skf = StratifiedKFold(nFold, 4)
+	# NFold validation
 	for train,test in skf:
 		total = 0
 		correct = 0
@@ -127,15 +120,15 @@ else:
 		trainOutput = [nFold[i] for i in train]
 		testInput = [featureVectors[i] for i in test]
 		testOutput = [nFold[i] for i in test]
+
 		print "Train decision tree"
 		print datetime.datetime.now().time()
 		decisionTree.fit(trainInput, trainOutput)
 		print "Training complete"
 		print datetime.datetime.now().time()
+
 		predictions = decisionTree.predict(testInput)
 		for index, prediction in enumerate(predictions):
-			# print "predict " + prediction
-			# print testOutput[index]
 			if prediction == testOutput[index]:
 				correct += 1
 			total += 1
@@ -144,6 +137,7 @@ else:
 		out.write("Total: " + str(total) + "\n")
 		out.write("Accuracy: " + str(float(correct)/total) + "\n\n")
 		average += float(correct)/total
+		
 	average /= 4
 	out.write("Average: " + str(average))
 

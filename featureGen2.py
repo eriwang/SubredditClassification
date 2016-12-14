@@ -11,14 +11,20 @@ def addVocabToVectors(outputName, oneHotAsBool=False):
 	listOfWordsFile = open("Data/" + outputName + "/listOfWords" , "r")
 	listOfTitlesFile = open("Data/" + outputName + "/listOfTitles" , "r")
 	
+	# Load vocabs and vectors
 	titleVocab = titleVocabFile.readline().split()
 	vocab = vocabFile.readline().split()
 	featureVectors = [line.split() for line in featureVectorFile]
+	# Uncomment to remove one hot encoding
+	# return featureVectors
+
+	# Load the titles and bodies of the posts
 	listOfWords = [line.split() for line in listOfWordsFile]
 	listOfTitles = [line.split() for line in listOfTitlesFile]
 	print "Starting feature generation part 2"
 	print datetime.datetime.now().time()
 
+	# Create dictionaries for faster searching
 	vocabDict = {}
 	titleDict = {}
 	for index, word in enumerate(vocab):
@@ -26,8 +32,7 @@ def addVocabToVectors(outputName, oneHotAsBool=False):
 	for index, word in enumerate(titleVocab):
 		titleDict[word] = index
 
-	print len(vocab)
-	print len(titleVocab)
+	# Add one hot encoding
 	for index, featureVector in enumerate(featureVectors):
 		words = listOfWords[index]
 		title = listOfTitles[index]
