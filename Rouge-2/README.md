@@ -20,4 +20,5 @@ Respectively. Each of these annotation files must also include a xml tree corres
 The following Python library must be installed 
 ``` Bash
 PrettyTable
+Numpy
 ```
