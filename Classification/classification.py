@@ -38,8 +38,8 @@ if demo == True:
 	clf.fit(featureVectors, nFold)
 	export_graphviz(clf)
 	# s = pickle.dump(clf, open(saveTree, "wb"))
-	vocabFile = open("Data/forPrediction/vocab" , "r")
-	titleVocabFile = open("Data/forPrediction/titleVocab" , "r")
+	vocabFile = open("Data/" + outputName + "/vocab" , "r")
+	titleVocabFile = open("Data/" + outputName + "/titleVocab" , "r")
 	titleVocab = titleVocabFile.readline().split()
 	vocab = vocabFile.readline().split()
 
