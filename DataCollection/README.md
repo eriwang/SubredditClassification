@@ -20,6 +20,7 @@ The summary must then be given as standard input.
 cat <summary.txt> | python annotateData.py <Name>
 ```
 
+## Expectations
 The following Python library must be installed
 ``` Bash
 PRAW
