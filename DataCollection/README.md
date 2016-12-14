@@ -19,3 +19,8 @@ The summary must then be given as standard input.
 ``` Bash
 cat <summary.txt> | python annotateData.py <Name>
 ```
+
+The following Python library must be installed
+``` Bash
+PRAW
+```
